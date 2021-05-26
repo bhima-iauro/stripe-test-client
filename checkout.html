@@ -7,16 +7,19 @@
     <script src="https://js.stripe.com/v3/"></script>
   </head>
   <body>
-    <div id="payment-request-button" class='mybtn'>
-  <!-- A Stripe Element will be inserted here. -->
-</div>
-<!--     <section>
+    <div id="payment-request-button">
+      <!-- A Stripe Element will be inserted here. -->
+    </div>
+    <div class="sr-input sr-card-element" id="card-element"></div>
+    <!-- <section>
       <div class="product">
         <img
           src="https://i.imgur.com/EHyR2nP.png"
           alt="The cover of Stubborn Attachments"
         />
-        <div class="description">
+         -->
+
+        <!-- <div class="description">
           <h3>Stubborn Attachments</h3>
           <h5>$20.00</h5>
         </div>
@@ -25,9 +28,44 @@
     </section> -->
   </body>
   <script type="text/javascript">
+  var clientSecret = ""
     // Create an instance of the Stripe object with your publishable API key
     var stripe = Stripe("pk_test_51InLUmSCDDhXqQs2iB1a4z3XIFFDwlp7BacSlm75KfFxRyhYzS06OVVfVMqH2j1oVj5St1ICRtKf1TqC2MbdKAix00ZY5NAcTc");
-   
+    var urlencoded = new URLSearchParams();
+      urlencoded.append("amount", '100');
+      urlencoded.append("currency", 'inr');
+      urlencoded.append("publishableKey","pk_test_51InLUmSCDDhXqQs2iB1a4z3XIFFDwlp7BacSlm75KfFxRyhYzS06OVVfVMqH2j1oVj5St1ICRtKf1TqC2MbdKAix00ZY5NAcTc");
+
+    fetch("https://external.iauro.com/stripe/create-payment-intent", {
+  method: "POST",
+  body : urlencoded,
+  
+  headers: {"Content-type": "application/x-www-form-urlencoded",
+        "Access-Control-Allow-Credentials":true,
+        "Access-Control-Allow-Origin":"*",
+        "Access-Control-Allow-Methods":["POST","GET"],
+       "Access-Control-Allow-Headers":'Content-Type'}
+})
+  .then(function(result) {
+    console.log("response intent", result);
+    return result.json();
+  })
+  .then(function(data) {
+    return setupElements(data);
+  })
+  .then(function({ stripe, card, clientSecret }) {
+    document.querySelector("button").disabled = false;
+    console.log("my response ", clientSecret);
+    clientSecret = clientSecret;
+    // Handle form submission.
+    // var form = document.getElementById("payment-form");
+    // form.addEventListener("submit", function(event) {
+    //   event.preventDefault();
+    //   // Initiate payment when the submit button is clicked
+    //   pay(stripe, card, clientSecret);
+    // });
+  });
+
 var paymentRequest = stripe.paymentRequest({
   country: 'US',
   currency: 'inr',
@@ -42,10 +80,12 @@ var elements = stripe.elements();
 var prButton = elements.create('paymentRequestButton', {
   paymentRequest: paymentRequest,
 });
- paymentRequest.canMakePayment().then(function(result) {
+
+// Check the availability of the Payment Request API first.
+paymentRequest.canMakePayment().then(function(result) {
   console.log("canMakePayment ", result)
   if (result) {
-    prButton.mount('#payment-request-button');
+    paymentRequestButton.mount('#payment-request-button');
     // Replace the instruction.
     document.querySelector('.instruction span').innerText = 'Or enter';
     // Show the payment request section.
@@ -55,6 +95,70 @@ var prButton = elements.create('paymentRequestButton', {
     document.getElementById('payment-request-button').style.display = 'none';
   }
  });
+ paymentRequest.on('paymentmethod', function(ev) {
+  // Confirm the PaymentIntent without handling potential next actions (yet).
+  stripe.confirmCardPayment(
+    clientSecret,
+    {payment_method: ev.paymentMethod.id},
+    {handleActions: false}
+  ).then(function(confirmResult) {
+    console.log("success result", confirmResult)
+    if (confirmResult.error) {
+      // Report to the browser that the payment failed, prompting it to
+      // re-show the payment interface, or show an error message and close
+      // the payment interface.
+      ev.complete('fail');
+    } else {
+      // Report to the browser that the confirmation was successful, prompting
+      // it to close the browser payment method collection interface.
+      ev.complete('success');
+      // Check if the PaymentIntent requires any actions and if so let Stripe.js
+      // handle the flow. If using an API version older than "2019-02-11" instead
+      // instead check for: `paymentIntent.status === "requires_source_action"`.
+      if (confirmResult.paymentIntent.status === "requires_action") {
+        // Let Stripe.js handle the rest of the payment flow.
+        stripe.confirmCardPayment(clientSecret).then(function(result) {
+          if (result.error) {
+            // The payment failed -- ask your customer for a new payment method.
+          } else {
+            // The payment has succeeded.
+          }
+        });
+      } else {
+        // The payment has succeeded.
+      }
+    }
+  });
+});
+
+var setupElements = function(data) {
+  stripe = Stripe(data.publishableKey);
+  var elements = stripe.elements();
+  var style = {
+    base: {
+      color: "#32325d",
+      fontFamily: '"Helvetica Neue", Helvetica, sans-serif',
+      fontSmoothing: "antialiased",
+      fontSize: "16px",
+      "::placeholder": {
+        color: "#aab7c4"
+      }
+    },
+    invalid: {
+      color: "#fa755a",
+      iconColor: "#fa755a"
+    }
+  };
+
+  var card = elements.create("card", { style: style });
+  card.mount("#card-element");
+
+  return {
+    stripe: stripe,
+    card: card,
+    clientSecret: data.clientSecret
+  };
+};
     var checkoutButton = document.getElementById("checkout-button");
     
     checkoutButton.addEventListener("click", function () {
