@@ -13,6 +13,9 @@
           src="https://i.imgur.com/EHyR2nP.png"
           alt="The cover of Stubborn Attachments"
         />
+<div id="payment-request-button">
+  <!-- A Stripe Element will be inserted here. -->
+</div>
         <div class="description">
           <h3>Stubborn Attachments</h3>
           <h5>$20.00</h5>
@@ -24,24 +27,48 @@
   <script type="text/javascript">
     // Create an instance of the Stripe object with your publishable API key
     var stripe = Stripe("pk_test_51InLUmSCDDhXqQs2iB1a4z3XIFFDwlp7BacSlm75KfFxRyhYzS06OVVfVMqH2j1oVj5St1ICRtKf1TqC2MbdKAix00ZY5NAcTc");
-    var checkoutButton = document.getElementById("checkout-button");
-    const YOUR_DOMAIN = 'http://192.168.0.104:8080';
+   
+var paymentRequest = stripe.paymentRequest({
+  country: 'US',
+  currency: 'usd',
+  total: {
+    label: 'Demo total',
+    amount: 1099,
+  },
+  requestPayerName: true,
+  requestPayerEmail: true,
+});
+var elements = stripe.elements();
+var prButton = elements.create('paymentRequestButton', {
+  paymentRequest: paymentRequest,
+});
 
+// Check the availability of the Payment Request API first.
+paymentRequest.canMakePayment().then(function(result) {
+  console.log("canMakePayment ", result)
+  if (result) {
+   
+    prButton.mount('#payment-request-button');
+  } else {
+    document.getElementById('payment-request-button').style.display = 'none';
+  }
+});
+    var checkoutButton = document.getElementById("checkout-button");
     
     checkoutButton.addEventListener("click", function () {
+      var YOUR_DOMAIN = window.location.origin// it will get your actual domain
       var urlencoded = new URLSearchParams();
-urlencoded.append("payment_method_types", 'card');
-urlencoded.append("success_url", `${YOUR_DOMAIN}/success.html`);
-urlencoded.append("cancel_url", `${YOUR_DOMAIN}/cancel.html`);
-urlencoded.append("currency", "inr");
-urlencoded.append("product_name", "Stubborn Attachments");
-urlencoded.append("product_image", "https://i.imgur.com/EHyR2nP.png");
-urlencoded.append("unit_amount", 1500);
-urlencoded.append("quantity", 1);
-urlencoded.append("stripe_secret_key","sk_test_51InLUmSCDDhXqQs23fv9r6Ngu61NoJKjzEf4vC8ERltT44qqQ5wF22Ecm35sGGmYep4M6WXDhozIJ9mgZd14Iyzv00bikCEWs1");
+      urlencoded.append("payment_method_types", 'card');
+      urlencoded.append("success_url", `${YOUR_DOMAIN}/success.html`);
+      urlencoded.append("cancel_url", `${YOUR_DOMAIN}/cancel.html`);
+      urlencoded.append("currency", "inr");
+      urlencoded.append("product_name", "Stubborn Attachments");
+      urlencoded.append("product_image", "https://i.imgur.com/EHyR2nP.png");
+      urlencoded.append("unit_amount", 1500);
+      urlencoded.append("quantity", 1);
+      urlencoded.append("stripe_secret_key", "sk_test_51InLUmSCDDhXqQs23fv9r6Ngu61NoJKjzEf4vC8ERltT44qqQ5wF22Ecm35sGGmYep4M6WXDhozIJ9mgZd14Iyzv00bikCEWs1");
 
-
-      fetch("https://stripe-server-iauro.herokuapp.com/create-checkout-session", {
+  fetch("http://localhost:4242/stripe/create-checkout-session", {
         method: "POST",
         body : urlencoded,
         headers: {"Content-type": "application/x-www-form-urlencoded",
@@ -56,7 +83,7 @@ urlencoded.append("stripe_secret_key","sk_test_51InLUmSCDDhXqQs23fv9r6Ngu61NoJKj
         .then(function (result) {
           if (result.error) {
             console.log("error ", result.error)
-           alert(result.errorMessage)
+           alert(result.error.message || result.error.code)
           }else {
             return stripe.redirectToCheckout({ sessionId: result.id });
           }
