@@ -42,17 +42,15 @@ var elements = stripe.elements();
 var prButton = elements.create('paymentRequestButton', {
   paymentRequest: paymentRequest,
 });
-
-// Check the availability of the Payment Request API first.
-paymentRequest.canMakePayment().then(function(result) {
-  console.log("canMakePayment ", result)
-  if (result) {
-   
+ const paymentRequestSupport = await paymentRequest.canMakePayment();
+  if (paymentRequestSupport) {
+    // Display the Pay button by mounting the Element in the DOM.
     prButton.mount('#payment-request-button');
-  } else {
-    document.getElementById('payment-request-button').style.display = 'none';
+    // Replace the instruction.
+    document.querySelector('.instruction span').innerText = 'Or enter';
+    // Show the payment request section.
+    document.getElementById('payment-request').classList.add('visible');
   }
-});
     var checkoutButton = document.getElementById("checkout-button");
     
     checkoutButton.addEventListener("click", function () {
