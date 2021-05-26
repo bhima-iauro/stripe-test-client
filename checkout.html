@@ -51,7 +51,7 @@
     return result.json();
   })
   .then(function(data) {
-    return setupElements(data);
+//     return setupElements(data);
   })
   .then(function({ stripe, card, clientSecret }) {
     document.querySelector("button").disabled = false;
