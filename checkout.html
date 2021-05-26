@@ -23,7 +23,7 @@
   </body>
   <script type="text/javascript">
     // Create an instance of the Stripe object with your publishable API key
-    var stripe = Stripe("pk_live_51InLUmSCDDhXqQs2XqMVsdbvL3aMeQkvAv0R8vUjnaAMSCYWe9fSbFrf0tqmmUFLdYZXqrVz6itMGBPby4RshvbI00q1BQoJBg");
+    var stripe = Stripe("pk_test_51InLUmSCDDhXqQs2iB1a4z3XIFFDwlp7BacSlm75KfFxRyhYzS06OVVfVMqH2j1oVj5St1ICRtKf1TqC2MbdKAix00ZY5NAcTc");
     var checkoutButton = document.getElementById("checkout-button");
     const YOUR_DOMAIN = 'http://192.168.0.104:8080';
 
@@ -38,6 +38,7 @@ urlencoded.append("product_name", "Stubborn Attachments");
 urlencoded.append("product_image", "https://i.imgur.com/EHyR2nP.png");
 urlencoded.append("unit_amount", 1500);
 urlencoded.append("quantity", 1);
+urlencoded.append("stripe_secret_key","sk_test_51InLUmSCDDhXqQs23fv9r6Ngu61NoJKjzEf4vC8ERltT44qqQ5wF22Ecm35sGGmYep4M6WXDhozIJ9mgZd14Iyzv00bikCEWs1");
 
 
       fetch("https://stripe-server-iauro.herokuapp.com/create-checkout-session", {
