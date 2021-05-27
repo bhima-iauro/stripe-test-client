@@ -34,8 +34,16 @@ fetch("https://external.iauro.com/stripe/create-payment-intent", {
     return result.json();
   })
   .then(function({ data }) {
-  console.log("data data" , data)
     stripe = Stripe(data.publishableKey);
+  //setup element here
+   return {
+    stripe: stripe,
+    card: card,
+    clientSecret: data.clientSecret
+  };   
+})
+  .then(function({ stripe, card, clientSecret }) {
+  console.log("data data" , data)
 
     var paymentRequest = stripe.paymentRequest({
   country: 'US',
@@ -65,7 +73,7 @@ paymentRequest.canMakePayment().then(function(result) {
   paymentRequest.on('paymentmethod', function(ev) {
   // Confirm the PaymentIntent without handling potential next actions (yet).
   stripe.confirmCardPayment(
-    data.clientSecret,
+    clientSecret,
     {payment_method: ev.paymentMethod.id},
     {handleActions: false}
   ).then(function(confirmResult) {
@@ -84,7 +92,7 @@ paymentRequest.canMakePayment().then(function(result) {
       // instead check for: `paymentIntent.status === "requires_source_action"`.
       if (confirmResult.paymentIntent.status === "requires_action") {
         // Let Stripe.js handle the rest of the payment flow.
-        stripe.confirmCardPayment( data.clientSecret).then(function(result) {
+        stripe.confirmCardPayment( clientSecret).then(function(result) {
           if (result.error) {
             // The payment failed -- ask your customer for a new payment method.
           } else {
