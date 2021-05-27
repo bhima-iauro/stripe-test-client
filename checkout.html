@@ -1,124 +1,21 @@
-Skip to content
-Search or jump to…
-
-Pull requests
-Issues
-Marketplace
-Explore
- 
-@bhima-iauro 
-bhima-iauro
-/
-stripe-test-client
-1
-00
-Code
-Issues
-Pull requests
-Actions
-Projects
-Wiki
-Security
-Insights
-Settings
-stripe-test-client/checkout.html
-@bhima-iauro
-bhima-iauro Update checkout.html
-Latest commit c74f71d 3 minutes ago
- History
- 1 contributor
-255 lines (236 sloc)  8.65 KB
-  
 <!DOCTYPE html>
-<html>
+<html lang="en">
   <head>
-    <title>Buy cool new product</title>
-    <link rel="stylesheet" href="style.css">
-    <script src="https://polyfill.io/v3/polyfill.min.js?version=3.52.1&features=fetch"></script>
+    <meta charset="utf-8" />
+    <title>Stripe Card Elements sample</title>
+    <meta name="description" content="A demo of Stripe Payment Intents" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <link rel="icon" href="favicon.ico" type="image/x-icon" />
+    <link rel="stylesheet" href="css/normalize.css" />
+    <link rel="stylesheet" href="css/global.css" />
     <script src="https://js.stripe.com/v3/"></script>
-  </head>
-  <body>
-   
-    <div class="sr-root">
-        <div id="payment-request-button" class="mybtn">
-            <!-- A Stripe Element will be inserted here. -->
-          </div>
-        <div class="sr-main">
-          <form id="payment-form" class="sr-payment-form">
-            <div class="sr-combo-inputs-row">
-              <div class="sr-input sr-card-element" id="card-element"></div>
-            </div>
-            <div class="sr-field-error" id="card-errors" role="alert"></div>
-            <button id="submit">
-              <div class="spinner hidden" id="spinner"></div>
-              <span id="button-text">Pay</span><span id="order-amount"></span>
-            </button>
-          </form>
-          <div class="sr-result hidden">
-            <p>Payment completed<br /></p>
-            <pre>
-              <code></code>
-            </pre>
-          </div>
-        </div>
-     
-<!--     <div class="sr-input sr-card-element" id="card-element"></div> -->
-    <!-- <section>
-      <div class="product">
-        <img
-          src="https://i.imgur.com/EHyR2nP.png"
-          alt="The cover of Stubborn Attachments"
-        />
-         -->
+    <!-- <script src="/script.js" defer></script> -->
+    <script>
+    // A reference to Stripe.js
 
-        <!-- <div class="description">
-          <h3>Stubborn Attachments</h3>
-          <h5>$20.00</h5>
-        </div>
-      </div>
-      <button type="button" id="checkout-button">Checkout</button>
-    </section> -->
-  </body>
-  <script type="text/javascript">
-  var clientSecret = ""
-    // Create an instance of the Stripe object with your publishable API key
-    var stripe = Stripe("pk_test_51InLUmSCDDhXqQs2iB1a4z3XIFFDwlp7BacSlm75KfFxRyhYzS06OVVfVMqH2j1oVj5St1ICRtKf1TqC2MbdKAix00ZY5NAcTc");
-    var urlencoded = new URLSearchParams();
-      urlencoded.append("amount", '100');
-      urlencoded.append("currency", 'inr');
-      urlencoded.append("publishableKey","pk_test_51InLUmSCDDhXqQs2iB1a4z3XIFFDwlp7BacSlm75KfFxRyhYzS06OVVfVMqH2j1oVj5St1ICRtKf1TqC2MbdKAix00ZY5NAcTc");
-
-    fetch("https://external.iauro.com/stripe/create-payment-intent", {
-  method: "POST",
-  body : urlencoded,
+var stripe = Stripe("pk_test_51InLUmSCDDhXqQs2iB1a4z3XIFFDwlp7BacSlm75KfFxRyhYzS06OVVfVMqH2j1oVj5St1ICRtKf1TqC2MbdKAix00ZY5NAcTc");
   
-  headers: {"Content-type": "application/x-www-form-urlencoded",
-        "Access-Control-Allow-Credentials":true,
-        "Access-Control-Allow-Origin":"*",
-        "Access-Control-Allow-Methods":["POST","GET"],
-       "Access-Control-Allow-Headers":'Content-Type'}
-})
-  .then(function(result) {
-    console.log("response intent", result);
-    return result.json();
-  })
-  .then(function(data) {
-    return setupElements(data);
-  })
-  .then(function({ stripe, card, clientSecret }) {
-    document.querySelector("button").disabled = false;
-    console.log("my response ", clientSecret);
-//     clientSecret = clientSecret;
-       
-    // Handle form submission.
-    var form = document.getElementById("payment-form");
-    form.addEventListener("submit", function(event) {
-      event.preventDefault();
-      // Initiate payment when the submit button is clicked
-      pay(stripe, card, clientSecret);
-    });
-  });
-
 var paymentRequest = stripe.paymentRequest({
   country: 'US',
   currency: 'inr',
@@ -138,67 +35,45 @@ var prButton = elements.create('paymentRequestButton', {
 paymentRequest.canMakePayment().then(function(result) {
   console.log("canMakePayment ", result)
   if (result) {
-    prButton.mount('#payment-request-button');
+    paymentRequestButton.mount('#payment-request-button');
     // Replace the instruction.
     document.querySelector('.instruction span').innerText = 'Or enter';
     // Show the payment request section.
-    document.getElementById('payment-request').classList.add('visible');
+    // document.getElementById('payment-form').classList.add('visible');
     // prButton.mount('#payment-request-button');
   } else {
     document.getElementById('payment-request-button').style.display = 'none';
   }
  });
+// Disable the button until we have Stripe set up on the page
+// document.querySelector("button").disabled = true;
+  var urlencoded = new URLSearchParams();
+      urlencoded.append("amount", '100');
+      urlencoded.append("currency", 'inr');
+      urlencoded.append("publishableKey","pk_test_51InLUmSCDDhXqQs2iB1a4z3XIFFDwlp7BacSlm75KfFxRyhYzS06OVVfVMqH2j1oVj5St1ICRtKf1TqC2MbdKAix00ZY5NAcTc");
 
-var setupElements = function(data) {
-  stripe = Stripe(data.publishableKey);
-  var elements = stripe.elements();
-  var style = {
-    base: {
-      color: "#32325d",
-      fontFamily: '"Helvetica Neue", Helvetica, sans-serif',
-      fontSmoothing: "antialiased",
-      fontSize: "16px",
-      "::placeholder": {
-        color: "#aab7c4"
-      }
-    },
-    invalid: {
-      color: "#fa755a",
-      iconColor: "#fa755a"
-    }
-  };
-
-  var card = elements.create("card", { style: style });
-  card.mount("#card-element");
-
-  return {
-    stripe: stripe,
-    card: card,
-    clientSecret: data.clientSecret
-  };
-};
-    var pay = function(stripe, card, clientSecret) {
-  changeLoadingState(true);
-
-  // Initiate the payment.
-  // If authentication is required, confirmCardPayment will automatically display a modal
-  stripe
-    .confirmCardPayment(clientSecret, {
-      payment_method: {
-        card: card
-      }
-    })
-    .then(function(result) {
-      if (result.error) {
-        // Show error to your customer
-        showError(result.error.message);
-      } else {
-        // The payment has been processed!
-        orderComplete(clientSecret);
-      }
-    });
-};
-paymentRequest.on('paymentmethod', function(ev) {
+fetch("https://external.iauro.com/stripe/create-payment-intent", {
+  method: "POST",
+  headers: {
+    "Content-Type": "application/json"
+  },
+  body : urlencoded,
+  
+  headers: {"Content-type": "application/x-www-form-urlencoded",
+        "Access-Control-Allow-Credentials":true,
+        "Access-Control-Allow-Origin":"*",
+        "Access-Control-Allow-Methods":["POST","GET"],
+       "Access-Control-Allow-Headers":'Content-Type'}
+})
+  .then(function(result) {
+    return result.json();
+  })
+  .then(function(data) {
+    return setupElements(data);
+  })
+  .then(function({ stripe, card, clientSecret }) {
+    // document.querySelector("button").disabled = false;
+    paymentRequest.on('paymentmethod', function(ev) {
   // Confirm the PaymentIntent without handling potential next actions (yet).
   stripe.confirmCardPayment(
     clientSecret,
@@ -234,6 +109,71 @@ paymentRequest.on('paymentmethod', function(ev) {
   });
 });
 
+    // Handle form submission.
+    var form = document.getElementById("payment-form");
+    form.addEventListener("submit", function(event) {
+      event.preventDefault();
+      // Initiate payment when the submit button is clicked
+      pay(stripe, card, clientSecret);
+    });
+  });
+
+// Set up Stripe.js and Elements to use in checkout form
+var setupElements = function(data) {
+  stripe = Stripe(data.publishableKey);
+  var elements = stripe.elements();
+  var style = {
+    base: {
+      color: "#32325d",
+      fontFamily: '"Helvetica Neue", Helvetica, sans-serif',
+      fontSmoothing: "antialiased",
+      fontSize: "16px",
+      "::placeholder": {
+        color: "#aab7c4"
+      }
+    },
+    invalid: {
+      color: "#fa755a",
+      iconColor: "#fa755a"
+    }
+  };
+
+  var card = elements.create("card", { style: style });
+  card.mount("#card-element");
+
+  return {
+    stripe: stripe,
+    card: card,
+    clientSecret: data.clientSecret
+  };
+};
+
+/*
+ * Calls stripe.confirmCardPayment which creates a pop-up modal to
+ * prompt the user to enter extra authentication details without leaving your page
+ */
+var pay = function(stripe, card, clientSecret) {
+  changeLoadingState(true);
+
+  // Initiate the payment.
+  // If authentication is required, confirmCardPayment will automatically display a modal
+  stripe
+    .confirmCardPayment(clientSecret, {
+      payment_method: {
+        card: card
+      }
+    })
+    .then(function(result) {
+      if (result.error) {
+        // Show error to your customer
+        showError(result.error.message);
+      } else {
+        // The payment has been processed!
+        orderComplete(clientSecret);
+      }
+    });
+};
+
 /* ------- Post-payment helpers ------- */
 
 /* Shows a success / error message when the payment is complete */
@@ -263,45 +203,45 @@ var showError = function(errorMsgText) {
     errorMsg.textContent = "";
   }, 4000);
 };
-    var checkoutButton = document.getElementById("checkout-button");
-    
-    checkoutButton.addEventListener("click", function () {
-      var YOUR_DOMAIN = window.location.origin// it will get your actual domain
-      var urlencoded = new URLSearchParams();
-      urlencoded.append("payment_method_types", 'card');
-      urlencoded.append("success_url", `${YOUR_DOMAIN}/success.html`);
-      urlencoded.append("cancel_url", `${YOUR_DOMAIN}/cancel.html`);
-      urlencoded.append("currency", "inr");
-      urlencoded.append("product_name", "Stubborn Attachments");
-      urlencoded.append("product_image", "https://i.imgur.com/EHyR2nP.png");
-      urlencoded.append("unit_amount", 1500);
-      urlencoded.append("quantity", 1);
-      urlencoded.append("stripe_secret_key", "sk_test_51InLUmSCDDhXqQs23fv9r6Ngu61NoJKjzEf4vC8ERltT44qqQ5wF22Ecm35sGGmYep4M6WXDhozIJ9mgZd14Iyzv00bikCEWs1");
 
-  fetch("http://localhost:4242/stripe/create-checkout-session", {
-        method: "POST",
-        body : urlencoded,
-        headers: {"Content-type": "application/x-www-form-urlencoded",
-        "Access-Control-Allow-Credentials":true,
-        "Access-Control-Allow-Origin":"*",
-        "Access-Control-Allow-Methods":["POST","GET"],
-       "Access-Control-Allow-Headers":'Content-Type'}
-      })
-        .then(function (response) {
-            return response.json();
-        })
-        .then(function (result) {
-          if (result.error) {
-            console.log("error ", result.error)
-           alert(result.error.message || result.error.code)
-          }else {
-            return stripe.redirectToCheckout({ sessionId: result.id });
-          }
-        })
-        .catch(function (error) {
-          console.log("error frontend2 ",error)
-        });
-   
-      });
-  </script>
+// Show a spinner on payment submission
+var changeLoadingState = function(isLoading) {
+  if (isLoading) {
+    document.querySelector("button").disabled = true;
+    document.querySelector("#spinner").classList.remove("hidden");
+    document.querySelector("#button-text").classList.add("hidden");
+  } else {
+    document.querySelector("button").disabled = false;
+    document.querySelector("#spinner").classList.add("hidden");
+    document.querySelector("#button-text").classList.remove("hidden");
+  }
+};
+</script>
+  </head>
+
+  <body>
+    <div class="sr-root">
+      <div class="sr-main">
+        <div id="payment-request-button" class="mybtn">
+          <!-- A Stripe Element will be inserted here. -->
+        </div>
+        <form id="payment-form" class="sr-payment-form">
+          <div class="sr-combo-inputs-row">
+            <div class="sr-input sr-card-element" id="card-element"></div>
+          </div>
+          <div class="sr-field-error" id="card-errors" role="alert"></div>
+          <button id="submit">
+            <div class="spinner hidden" id="spinner"></div>
+            <span id="button-text">Pay</span><span id="order-amount"></span>
+          </button>
+        </form>
+        <div class="sr-result hidden">
+          <p>Payment completed<br /></p>
+          <pre>
+            <code></code>
+          </pre>
+        </div>
+      </div>
+    </div>
+  </body>
 </html>
