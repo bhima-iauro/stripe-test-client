@@ -191,12 +191,12 @@ var orderComplete = function(clientSecret) {
       document.querySelector(".sr-result").classList.add("expand");
     }, 200);
 
-//     changeLoadingState(false);
+    changeLoadingState(false);
   });
 };
 
 var showError = function(errorMsgText) {
-//   changeLoadingState(false);
+  changeLoadingState(false);
   var errorMsg = document.querySelector(".sr-field-error");
   errorMsg.textContent = errorMsgText;
   setTimeout(function() {
