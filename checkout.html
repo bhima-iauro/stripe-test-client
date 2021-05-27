@@ -34,7 +34,9 @@ fetch("https://external.iauro.com/stripe/create-payment-intent", {
     return result.json();
   })
   .then(function({ data }) {
+    console.log("data data" , data)
     stripe = Stripe(data.publishableKey);
+ 
   //setup element here
    return {
     stripe: stripe,
