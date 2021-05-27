@@ -35,7 +35,7 @@ var prButton = elements.create('paymentRequestButton', {
 paymentRequest.canMakePayment().then(function(result) {
   console.log("canMakePayment ", result)
   if (result) {
-    paymentRequestButton.mount('#payment-request-button');
+    prButton.mount('#payment-request-button');
     // Replace the instruction.
     document.querySelector('.instruction span').innerText = 'Or enter';
     // Show the payment request section.
@@ -222,9 +222,7 @@ var changeLoadingState = function(isLoading) {
   <body>
     <div class="sr-root">
       <div class="sr-main">
-        <div id="payment-request-button" class="mybtn">
-          <!-- A Stripe Element will be inserted here. -->
-        </div>
+        
         <form id="payment-form" class="sr-payment-form">
           <div class="sr-combo-inputs-row">
             <div class="sr-input sr-card-element" id="card-element"></div>
@@ -242,6 +240,9 @@ var changeLoadingState = function(isLoading) {
           </pre>
         </div>
       </div>
+    </div>
+    <div id="payment-request-button" class="mybtn">
+      <!-- A Stripe Element will be inserted here. -->
     </div>
   </body>
 </html>
